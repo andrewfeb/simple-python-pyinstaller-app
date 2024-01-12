@@ -37,4 +37,21 @@ node {
             }           
         }
     }
+    withEnv(['registryName=simplepython',
+            'registryCredential=ACR',
+            'dockerImage= ',
+            'registryUrl=simplepython.azurecr.io']) {
+        stage ('Build Docker Image') {
+            script {
+                dockerImage = docker.build registryName
+            }
+        }
+        stage('Upload Image to ACR') {
+            script {
+                docker.withRegistry("http://${registryUrl}", registryCredential) {
+                    dockerImage.push()
+                }
+            }
+        }
+    }
 }
